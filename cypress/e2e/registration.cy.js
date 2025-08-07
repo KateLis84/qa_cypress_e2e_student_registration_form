@@ -13,7 +13,7 @@ describe('Student Registration page', () => {
   const state = 'NCR';
   const city = 'Delhi';
 
-  before(() => {
+  beforeEach(() => {
     cy.visit('https://demoqa.com/automation-practice-form');
   });
 
@@ -21,7 +21,9 @@ describe('Student Registration page', () => {
     cy.get('#firstName').type(firstName);
     cy.get('#lastName').type(lastName);
     cy.get('#userEmail').type(email);
-    cy.contains('.custom-control-label', gender).click();
+
+    cy.get('#genterWrapper').contains('.custom-control-label', gender).click();
+
     cy.get('#userNumber').type(phone);
 
     cy.get('#dateOfBirthInput').click();
@@ -29,34 +31,40 @@ describe('Student Registration page', () => {
     cy.get('.react-datepicker__year-select').select('2004');
     cy.get('.react-datepicker__day--023').click();
 
-    cy.get('.subjects-auto-complete__value-container').type(subjects);
+    cy.get('#subjectsInput').type(`${subjects}{enter}`);
 
-    cy.get('.subjects-auto-complete__menu').contains(subjects).click();
     hobbies.forEach((hobby) => {
-      cy.contains('.custom-control-label', hobby).click();
+      // eslint-disable-next-line max-len
+      cy.get('#hobbiesWrapper').contains('.custom-control-label', hobby).click();
     });
 
     cy.get('#currentAddress').type(address);
 
-    cy.get('#state').click();
-    cy.get('.css-26l3qy-menu').contains(state).click();
-
-    cy.get('#city').click();
-    cy.get('.css-26l3qy-menu').contains(city).click();
+    cy.get('#state').type(`${state}{enter}`);
+    cy.get('#city').type(`${city}{enter}`);
 
     cy.get('#submit').click();
 
     cy.get('.modal-content').should('be.visible');
-    cy.get('td').contains(`${firstName} ${lastName}`);
-    cy.get('td').contains(email);
-    cy.get('td').contains(gender);
-    cy.get('td').contains(phone);
-    cy.get('td').contains(birthDay);
-    cy.get('td').contains(subjects);
-    hobbies.forEach((hobby) => {
-      cy.get('td').contains(hobby);
+    cy.get('.modal-body').within(() => {
+      cy.contains('tr', 'Student Name')
+        .should('contain.text', `${firstName} ${lastName}`);
+      cy.contains('tr', 'Student Email')
+        .should('contain.text', email);
+      cy.contains('tr', 'Gender')
+        .should('contain.text', gender);
+      cy.contains('tr', 'Mobile')
+        .should('contain.text', phone);
+      cy.contains('tr', 'Date of Birth')
+        .should('contain.text', birthDay);
+      cy.contains('tr', 'Subjects')
+        .should('contain.text', subjects);
+      cy.contains('tr', 'Hobbies')
+        .should('contain.text', hobbies.join(', '));
+      cy.contains('tr', 'Address')
+        .should('contain.text', address);
+      cy.contains('tr', 'State and City')
+        .should('contain.text', `${state} ${city}`);
     });
-    cy.get('td').contains(address);
-    cy.get('td').contains(`${state} ${city}`);
   });
 });
